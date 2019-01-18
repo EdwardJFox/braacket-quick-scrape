@@ -27,6 +27,9 @@ rp(baseUrl)
 
     return Promise.all(toRun);
   })
+  .then(function() {
+    
+  })
   .then(function () {
     return new Promise((resolve, reject) => {
       fs.writeFile('players.json', JSON.stringify(players), 'utf8', () => resolve());
@@ -75,6 +78,16 @@ function processPlayers(playerRows, $) {
   });
 }
 
-function getPlayerHeadToHead(player) {
+function requestPlayerUrl(player) {
+  return rp(playerUrl + player.id)
+}
 
+function getPlayerHeadToHead(player) {
+  return new Promise((resolve, reject) => {
+    requestPlayerUrl.then(html => {
+      const $ = cheerio.load(html);
+      const matches = $('.table.my-table-show_max').eq(0).find('tbody tr').not('.my-table-row-action')
+    })
+    .catch(err => reject(err));
+  });
 }
