@@ -28,7 +28,13 @@ rp(baseUrl)
     return Promise.all(toRun);
   })
   .then(function() {
-    
+    let toRun = [];
+
+    Object.keys(players).forEach(function(player_name) {
+      toRun.push(getPlayerHeadToHead(players[player_name]))
+    });
+
+    return Promise.all(toRun);
   })
   .then(function () {
     return new Promise((resolve, reject) => {
@@ -73,20 +79,25 @@ function processPlayers(playerRows, $) {
       if(character_1 == character_2) {
         character_2 = undefined;
       }
-      players[playerName] = new Player(playerId, playerName, twitter, region, character_1, character_2)
+      players[playerName] = new Player(playerId, playerName, twitter, region, character_1, character_2);
     }
   });
 }
 
-function requestPlayerUrl(player) {
-  return rp(playerUrl + player.id)
-}
-
 function getPlayerHeadToHead(player) {
   return new Promise((resolve, reject) => {
-    requestPlayerUrl.then(html => {
+    rp(playerUrl + player.id).then(html => {
       const $ = cheerio.load(html);
-      const matches = $('.table.my-table-show_max').eq(0).find('tbody tr').not('.my-table-row-action')
+      const matches = $('.table.my-table-show_max').eq(0).find('tbody tr').not('.my-table-row-action');
+
+      matches.each(function (index, elem) {
+        const against = $(elem).find('a').text().trim();
+        const won = $(elem).find('number-success') ? true : false;
+        console.log(against);
+        player.addMatch(against, won);
+      })
+
+      resolve(true);
     })
     .catch(err => reject(err));
   });
