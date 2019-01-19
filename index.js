@@ -9,7 +9,9 @@ const baseParams = '&page='
 const playerUrl = 'https://braacket.com/league/SmashUK/player/';
 
 const players = {};
-var pages;
+let pages;
+let progress = 0;
+let total = 0;
 
 // First, grab the base url and start going through each page
 rp(baseUrl)
@@ -29,6 +31,7 @@ rp(baseUrl)
   })
   .then(function() {
     let toRun = [];
+    total = Object.keys(players).length;
 
     Object.keys(players).forEach(function(player_name) {
       toRun.push(getPlayerHeadToHead(players[player_name]))
@@ -92,11 +95,12 @@ function getPlayerHeadToHead(player) {
 
       matches.each(function (index, elem) {
         const against = $(elem).find('a').text().trim();
-        const won = $(elem).find('number-success') ? true : false;
-        console.log(against);
+        const won = $(elem).find('.number-success').length == 1 ? true : false;
         player.addMatch(against, won);
       })
-
+      
+      progress += 1;
+      console.log(`Progress: ${progress} out of ${total}`)
       resolve(true);
     })
     .catch(err => reject(err));

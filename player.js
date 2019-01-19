@@ -10,7 +10,6 @@ module.exports = class Player {
   }
 
   addMatch(against, won) {
-    console.log(against);
     if(!this.head2head[against]) {
       this.head2head[against] = { won: 0, lost: 0 }
     }
